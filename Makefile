@@ -92,9 +92,9 @@ distclean:
 
 
 install: pykaldi/kaldi/decoders.so pyfst/fst/_fst.so
-	cd pyfst && \
+	cd $(CURDIR)/pyfst && \
 		LIBRARY_PATH=$(AFSTDIR)/lib:$(AFSTDIR)/lib/fst CPLUS_INCLUDE_PATH=$(AFSTDIR)/include $(PYTHON) setup.py install
-	cd pykaldi && \
+	cd $(CURDIR)/pykaldi && \
 		PYKALDI_ADDLIBS="$(ADDLIBS)" \
 		LIBRARY_PATH=$(AFSTDIR)/lib:$(AFSTDIR)/lib/fst CPLUS_INCLUDE_PATH=$(AFSTDIR)/include \
 		$(PYTHON) setup.py install
@@ -113,17 +113,3 @@ pykaldi_$(LINUX).zip: pykaldi/kaldi/decoders.so pyfst/fst/_fst.so
 	cp pykaldi/dist/pykaldi*.egg pyfst/dist/pyfst*.egg $(basename $@)
 	for d in include lib bin ; do cp -r $(AFSTDIR)/$$d  $(basename $@)/openfst ; done
 	zip -r $@ $(basename $@)
-
-install: pykaldi_$(LINUX).zip
-	export dir=`mktemp -d pykaldi_install_XXXXX`
-	echo -e "\nInstalling from $$dir\n"
-	mkdir -p $$dir
-	cp $< $$dir
-	cd $$dir && \
-		unzip -q $<
-		cd $(basename $<) && \
-			for d in bin include lib ; do  cp -r openfst/$$d/* $(INSTALL_PREFIX)/$$d/ ; done
-			easy_install pyfst*.egg
-			easy_install pykaldi*.egg
-	echo -e "\nRemoving $$dir\n"
-	rm -rf $$dir
